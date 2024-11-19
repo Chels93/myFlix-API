@@ -142,6 +142,28 @@ module.exports = (app) => {
     }
   );
 
+  // Get favorite movies for a specific user
+app.get(
+    "/users/:username/favoriteMovies",
+    passport.authenticate("jwt", { session: false }),
+    async (req, res) => {
+      try {
+        const user = await Users.findOne({ username: req.params.username })
+          .populate("favoriteMovies") // Populate to include movie details
+          .exec();
+  
+        if (!user) {
+          return res.status(404).send("User not found.");
+        }
+  
+        res.status(200).json(user.favoriteMovies);
+      } catch (error) {
+        console.error("Error fetching favorite movies:", error);
+        res.status(500).send("Error: " + error.message);
+      }
+    }
+  );
+
   // Allows users to add a movie to their list of favorites
   app.post(
     "/users/:username/movies/:movieId",
@@ -180,7 +202,7 @@ module.exports = (app) => {
         })
         .catch((err) => {
           console.error(err);
-          res.status(500).send("Error: " + err);
+          res.status(500).send("Error: " + err); 
         });
     }
   );
