@@ -3,6 +3,7 @@ const cors = require("cors");
 const passport = require("passport");
 const Models = require("./models.js");
 const { check, validationResult } = require("express-validator");
+const jwt = require('jsonwebtoken');
 
 const Users = Models.User;
 
@@ -53,20 +54,20 @@ module.exports = (app) => {
       if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() }); // Return validation errors
       }
-
+  
       const { username, password, email, birthdate } = req.body;
-
+  
       if (!username || !password || !email || !birthdate) {
         return res.status(400).json({ error: "Missing required fields" });
       }
-
+  
       try {
         // Check if the username already exists
         const existingUser = await Users.findOne({ username });
         if (existingUser) {
           return res.status(400).send(`${username} already exists.`);
         }
-
+  
         // Hash the password and create the new user
         const hashedPassword = Users.hashPassword(password);
         const newUser = await Users.create({
@@ -75,14 +76,26 @@ module.exports = (app) => {
           email,
           birthdate,
         });
-
-        return res.status(201).json(newUser); // Return the created user
+  
+        // Generate JWT token
+        const token = jwt.sign(
+          { username: newUser.username, id: newUser._id },
+          'your_secret_key', // Replace with a secure secret key or use environment variables
+          { expiresIn: '1h' }
+        );
+  
+        // Return the new user and token
+        return res.status(201).json({
+          user: newUser,
+          token: token // Return token alongside the user data
+        });
       } catch (error) {
         console.error("Error creating user:", error);
         return res.status(500).send({ error: "Internal server error" });
       }
     }
   );
+  
 
   // Allows users to login
   app.post("/login", async (req, res) => {
