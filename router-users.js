@@ -32,51 +32,54 @@ module.exports = (app) => {
   );
 
   // Allows new users to register
-  app.post(
+app.post(
     "/users",
     [
-      check("username", "Username is required").isLength({ min: 5 }),
-      check(
-        "username",
-        "Username contains non alpanumeric characters - not allowed."
-      ).isAlphanumeric(),
-      check("password", "Password is required").not().isEmpty(),
-      check("email", "Email does not appear to be valid").isEmail(),
+      check("username", "Username is required and must be at least 5 characters long.")
+        .isLength({ min: 5 })
+        .isAlphanumeric().withMessage("Username contains non-alphanumeric characters."),
+      check("password", "Password is required").notEmpty(),
+      check("email", "A valid email is required").isEmail(),
+      check("birthdate", "Birthdate must be a valid date in YYYY-MM-DD format.")
+        .isISO8601()
+        .toDate(),
     ],
     async (req, res) => {
-      let errors = validationResult(req);
+      const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() });
+        return res.status(422).json({ errors: errors.array() }); // Return validation errors
       }
-      if (!req.body.password || !req.body.username) {
-        return res.status(400).json({ error: "username or password missing" });
+  
+      const { username, password, email, birthdate } = req.body;
+  
+      if (!username || !password || !email || !birthdate) {
+        return res.status(400).json({ error: "Missing required fields" });
       }
-
-      let hashedPassword = Users.hashPassword(req.body.password);
-
+  
       try {
-        const existingUser = await Users.findOne({
-          username: req.body.username,
-        });
+        // Check if the username already exists
+        const existingUser = await Users.findOne({ username });
         if (existingUser) {
-          return res.status(400).send(req.body.username + "already exists.");
+          return res.status(400).send(`${username} already exists.`);
         }
-
+  
+        // Hash the password and create the new user
+        const hashedPassword = Users.hashPassword(password);
         const newUser = await Users.create({
-          username: req.body.username,
+          username,
           password: hashedPassword,
-          email: req.body.email,
-          birthdate: req.body.birthdate,
+          email,
+          birthdate,
         });
-
-        res.status(201).json(newUser);
+  
+        return res.status(201).json(newUser); // Return the created user
       } catch (error) {
-        console.error(error);
-        res.status(500).send("Error: " + error);
+        console.error("Error creating user:", error);
+        return res.status(500).send({ error: "Internal server error" });
       }
     }
   );
-
+  
   // Allows users to update their user info
   app.put(
     "/users/:username",
