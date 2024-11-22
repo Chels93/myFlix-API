@@ -32,12 +32,16 @@ module.exports = (app) => {
   );
 
   // Allows new users to register
-app.post(
+  app.post(
     "/users",
     [
-      check("username", "Username is required and must be at least 5 characters long.")
+      check(
+        "username",
+        "Username is required and must be at least 5 characters long."
+      )
         .isLength({ min: 5 })
-        .isAlphanumeric().withMessage("Username contains non-alphanumeric characters."),
+        .isAlphanumeric()
+        .withMessage("Username contains non-alphanumeric characters."),
       check("password", "Password is required").notEmpty(),
       check("email", "A valid email is required").isEmail(),
       check("birthdate", "Birthdate must be a valid date in YYYY-MM-DD format.")
@@ -49,20 +53,20 @@ app.post(
       if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() }); // Return validation errors
       }
-  
+
       const { username, password, email, birthdate } = req.body;
-  
+
       if (!username || !password || !email || !birthdate) {
         return res.status(400).json({ error: "Missing required fields" });
       }
-  
+
       try {
         // Check if the username already exists
         const existingUser = await Users.findOne({ username });
         if (existingUser) {
           return res.status(400).send(`${username} already exists.`);
         }
-  
+
         // Hash the password and create the new user
         const hashedPassword = Users.hashPassword(password);
         const newUser = await Users.create({
@@ -71,7 +75,7 @@ app.post(
           email,
           birthdate,
         });
-  
+
         return res.status(201).json(newUser); // Return the created user
       } catch (error) {
         console.error("Error creating user:", error);
@@ -79,7 +83,43 @@ app.post(
       }
     }
   );
-  
+
+  // Allows users to login
+  app.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+
+    // Validate input
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ error: "Username and password are required" });
+    }
+
+    try {
+      // Find the user by username
+      const user = await Users.findOne({ username });
+      if (!user) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+      // Check if the password is correct
+      const isMatch = await user.comparePassword(password); // Assuming a method like comparePassword exists
+      if (!isMatch) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+      // Generate a JWT token
+      const token = jwt.sign(
+        { username: user.username, id: user._id },
+        "your_secret_key",
+        { expiresIn: "1h" }
+      );
+      // Send the token to the client
+      res.status(200).json({ token });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // Allows users to update their user info
   app.put(
     "/users/:username",
@@ -146,7 +186,7 @@ app.post(
   );
 
   // Get favorite movies for a specific user
-app.get(
+  app.get(
     "/users/:username/favoriteMovies",
     passport.authenticate("jwt", { session: false }),
     async (req, res) => {
@@ -154,11 +194,11 @@ app.get(
         const user = await Users.findOne({ username: req.params.username })
           .populate("favoriteMovies") // Populate to include movie details
           .exec();
-  
+
         if (!user) {
           return res.status(404).send("User not found.");
         }
-  
+
         res.status(200).json(user.favoriteMovies);
       } catch (error) {
         console.error("Error fetching favorite movies:", error);
@@ -205,7 +245,7 @@ app.get(
         })
         .catch((err) => {
           console.error(err);
-          res.status(500).send("Error: " + err); 
+          res.status(500).send("Error: " + err);
         });
     }
   );
