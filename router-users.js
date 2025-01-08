@@ -3,12 +3,14 @@ const cors = require("cors");
 const passport = require("passport");
 const Models = require("./models.js");
 const { check, validationResult } = require("express-validator");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const Users = Models.User;
 
 module.exports = (app) => {
-  // Enable CORS for all routes or specifies origins
+  /**
+   * Enable CORS for all routes or specifies origins
+   */
   app.use(
     cors({
       origin: "*",
@@ -16,7 +18,10 @@ module.exports = (app) => {
     })
   );
 
-  // Returns a JSON object of all users
+  /**
+   * Get all users
+   * @returns {Array<object>} Array of user objects
+   */
   app.get(
     "/users",
     passport.authenticate("jwt", { session: false }),
@@ -32,7 +37,13 @@ module.exports = (app) => {
     }
   );
 
-  // Allows new users to register
+  /**
+   * Allows users to login
+   * @param {object} req.body - The request body
+   * @param {string} req.body.username - Username of the user
+   * @param {string} req.body.password - Password of the user
+   * @returns {object} JWT token
+   */
   app.post(
     "/users",
     [
@@ -54,20 +65,20 @@ module.exports = (app) => {
       if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() }); // Return validation errors
       }
-  
+
       const { username, password, email, birthdate } = req.body;
-  
+
       if (!username || !password || !email || !birthdate) {
         return res.status(400).json({ error: "Missing required fields" });
       }
-  
+
       try {
         // Check if the username already exists
         const existingUser = await Users.findOne({ username });
         if (existingUser) {
           return res.status(400).send(`${username} already exists.`);
         }
-  
+
         // Hash the password and create the new user
         const hashedPassword = Users.hashPassword(password);
         const newUser = await Users.create({
@@ -76,18 +87,18 @@ module.exports = (app) => {
           email,
           birthdate,
         });
-  
+
         // Generate JWT token
         const token = jwt.sign(
           { username: newUser.username, id: newUser._id },
-          'your_secret_key', // Replace with a secure secret key or use environment variables
-          { expiresIn: '1h' }
+          "your_secret_key", // Replace with a secure secret key or use environment variables
+          { expiresIn: "1h" }
         );
-  
+
         // Return the new user and token
         return res.status(201).json({
           user: newUser,
-          token: token // Return token alongside the user data
+          token: token, // Return token alongside the user data
         });
       } catch (error) {
         console.error("Error creating user:", error);
@@ -95,9 +106,14 @@ module.exports = (app) => {
       }
     }
   );
-  
 
-  // Allows users to login
+  /**
+   * Allows users to login
+   * @param {object} req.body - The request body
+   * @param {string} req.body.username - Username of the user
+   * @param {string} req.body.password - Password of the user
+   * @returns {object} JWT token
+   */
   app.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
@@ -133,7 +149,12 @@ module.exports = (app) => {
     }
   });
 
-  // Allows users to update their user info
+  /**
+   * Allows users to update their user info
+   * @param {string} req.params.username - The username of the user to update
+   * @param {object} req.body - Data to update
+   * @returns {object} Updated user object
+   */
   app.put(
     "/users/:username",
     passport.authenticate("jwt", { session: false }),
@@ -180,7 +201,11 @@ module.exports = (app) => {
     }
   );
 
-  // Get user info
+  /**
+   * Get user info by username
+   * @param {string} req.params.username - The username of the user to retrieve
+   * @returns {object} User object if found
+   */
   app.get(
     "/users/:username",
     passport.authenticate("jwt", { session: false }),
@@ -198,7 +223,11 @@ module.exports = (app) => {
     }
   );
 
-  // Get favorite movies for a specific user
+  /**
+   * Get favorite movies for a specific user
+   * @param {string} req.params.username - The username of the user
+   * @returns {Array<object>} Array of favorite movie objects
+   */
   app.get(
     "/users/:username/favoriteMovies",
     passport.authenticate("jwt", { session: false }),
@@ -220,7 +249,12 @@ module.exports = (app) => {
     }
   );
 
-  // Allows users to add a movie to their list of favorites
+  /**
+   * Allows users to add a movie to their list of favorites
+   * @param {string} req.params.username - The username of the user
+   * @param {string} req.params.movieId - The ID of the movie
+   * @returns {object} Updated user object
+   */
   app.post(
     "/users/:username/movies/:movieId",
     passport.authenticate("jwt", { session: false }),
@@ -240,7 +274,12 @@ module.exports = (app) => {
     }
   );
 
-  // Allows users to remove a movie from their list of favorites
+  /**
+   * Allows users to remove a movie from their list of favorites
+   * @param {string} req.params.username - The username of the user
+   * @param {string} req.params.movieId - The ID of the movie
+   * @returns {object} Updated user object
+   */
   app.delete(
     "/users/:username/movies/:movieId",
     passport.authenticate("jwt", { session: false }),
@@ -263,7 +302,11 @@ module.exports = (app) => {
     }
   );
 
-  // Allows existing users to deregister
+  /**
+   * Allows existing users to deregister
+   * @param {string} req.params.username - The username of the user
+   * @returns {string} Confirmation message
+   */
   app.delete(
     "/users/:username",
     passport.authenticate("jwt", { session: false }),
