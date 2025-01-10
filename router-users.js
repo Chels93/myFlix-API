@@ -19,8 +19,9 @@ module.exports = (app) => {
   );
 
   /**
-   * Get all users
+   * Returns a list of all users
    * @returns {Array<object>} Array of user objects
+   * Requires Jwt authentication
    */
   app.get(
     "/users",
@@ -38,11 +39,16 @@ module.exports = (app) => {
   );
 
   /**
-   * Allows users to login
-   * @param {object} req.body - The request body
-   * @param {string} req.body.username - Username of the user
-   * @param {string} req.body.password - Password of the user
-   * @returns {object} JWT token
+   * Registers a new user and returns the user data along with a JWT token
+   *
+   * @param {object} req - The request object.
+   * @param {object} req.body - The request body.
+   * @param {string} req.body.username - The username of the new user.
+   * @param {string} req.body.password - The password of the new user.
+   * @param {string} req.body.email - The email address of the new user.
+   * @param {string} req.body.birthdate - The birthdate of the new user in YYYY-MM-DD format.
+   * @param {object} res - The response object.
+   * @returns {object} - A JSON object containing the created user data and a JWT token.
    */
   app.post(
     "/users",
@@ -151,6 +157,7 @@ module.exports = (app) => {
 
   /**
    * Allows users to update their user info
+   * Requires JWT authentication
    * @param {string} req.params.username - The username of the user to update
    * @param {object} req.body - Data to update
    * @returns {object} Updated user object
@@ -203,6 +210,7 @@ module.exports = (app) => {
 
   /**
    * Get user info by username
+   * Requires JWT authentication
    * @param {string} req.params.username - The username of the user to retrieve
    * @returns {object} User object if found
    */
@@ -225,6 +233,7 @@ module.exports = (app) => {
 
   /**
    * Get favorite movies for a specific user
+   * Requires JWT authentication
    * @param {string} req.params.username - The username of the user
    * @returns {Array<object>} Array of favorite movie objects
    */
@@ -251,6 +260,7 @@ module.exports = (app) => {
 
   /**
    * Allows users to add a movie to their list of favorites
+   * Requires JWT authentication
    * @param {string} req.params.username - The username of the user
    * @param {string} req.params.movieId - The ID of the movie
    * @returns {object} Updated user object
@@ -276,6 +286,7 @@ module.exports = (app) => {
 
   /**
    * Allows users to remove a movie from their list of favorites
+   * Requires JWT authentication
    * @param {string} req.params.username - The username of the user
    * @param {string} req.params.movieId - The ID of the movie
    * @returns {object} Updated user object
@@ -304,6 +315,7 @@ module.exports = (app) => {
 
   /**
    * Allows existing users to deregister
+   * Requires JWT authentication
    * @param {string} req.params.username - The username of the user
    * @returns {string} Confirmation message
    */
