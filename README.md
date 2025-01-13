@@ -18,7 +18,7 @@ FEATURES:
 - Allow users to remove a movie from their list of favorites 
 - ALlow existing users to deregister 
 
-RUN APPLICATION:
+DEPLOYMENT:
 - Install dependencies using: npm install
 - Run the server using: npm start 
 - Github link: https://github.com/Chels93/movie_api
