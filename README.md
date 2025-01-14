@@ -30,23 +30,21 @@ TECHNICAL STACK:
 - Mongoose: Object Data Modeling (ODM) library for MongoDB
 
 API ENDPOINTS:
-    Movies:
-        HTTP Method	            Endpoint	                            Description
-            GET	            /movies	                                Returns a JSON object list of all movies
-            GET	            /movies/:Title	                        Returns data about a single movie by title
-            GET	            /movies/genre/:genreName	            Returns data about a genre by name
-            GET	            /movies/director/:directorName	        Returns data about a director by name
-    Users:
-        HTTP Method	            Endpoint	                            Description
-            GET	            /users	                                Returns a list of all users
-            POST            /users                                  Registers a new user and returns the user data along with a JWT token
-            POST	        /login                                  Allows users to login
-            PUT	            /users/:username	                    Allows users to update their user info
-            GET	            /users/:username	                    Get user info by username 
-            GET	            /users/:username/favoriteMovies         Get favorite movies for a specific user
-            POST            /users/:username/movies/:movieId        Allows users to add a movie to their list of favorites
-            DELETE          /users/:username/movies/:movieId        Allows users to remove a movie from thier list of favorites 
-            DELETE          /users/:username                        Allows existing users to deregister
+- Movies:
+    - HTTP Method: GET	        Endpoint: /movies	                              Description: Returns a JSON object list of all movies
+    - HTTP Method: GET	        Endpoint: /movies/:Title	                      Description: Returns data about a single movie by title
+    - HTTP Method: GET	        Endpoint: /movies/genre/:genreName	              Description: Returns data about a genre by name
+    - HTTP Method: GET	        Endpoint: /movies/director/:directorName	      Description: Returns data about a director by name
+- Users:
+    - HTTP Method: GET	        Endpoint: /users	                              Description: Returns a list of all users
+    - HTTP Method: POST         Endpoint: /users                                  Description: Registers a new user and returns the user data along with a JWT token
+    - HTTP Method: POST	        Endpoint: /login                                  Description: Allows users to login
+    - HTTP Method: PUT	        Endpoint: /users/:username	                      Description: Allows users to update their user info
+    - HTTP Method: GET	        Endpoint: /users/:username	                      Description: Get user info by username 
+    - HTTP Method: GET	        Endpoint: /users/:username/favoriteMovies         Description: Get favorite movies for a specific user
+    - HTTP Method: POST         Endpoint: /users/:username/movies/:movieId        Description: Allows users to add a movie to their list of favorites
+    - HTTP Method: DELETE       Endpoint: /users/:username/movies/:movieId        Description: Allows users to remove a movie from thier list of favorites 
+    - HTTP Method: DELETE       Endpoint: /users/:username                        Description: Allows existing users to deregister
 
 
 ENHANCEMENTS AND FUTURE PLANS:
