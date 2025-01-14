@@ -1,4 +1,4 @@
-myFlix API (movie_api):
+myFlix (API):
 
 OVERVIEW:
 The myFlix API is the server-side component of a web application that provides users with information about movies, directors, and genres. Users can create accounts, manage their profiles, and curate a list of their favorite movies. Built using the MERN stack, the API follows REST architecture principles, offering secure and efficient access to movie-related data stored in a non-relational database. The application demonstrates proficiency in backend development, including server frameworks, database management, authentication, authorization, and data security.
@@ -21,7 +21,7 @@ FEATURES:
 DEPLOYMENT:
 - Install dependencies using: npm install
 - Run the server using: npm start 
-- Github link: https://github.com/Chels93/movie_api
+- Github link: https://github.com/Chels93/myFlix
 
 TECHNICAL STACK:
 - Node.js: Server runtime environment
