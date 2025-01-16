@@ -26,6 +26,7 @@ const app = express();
 const allowedOrigins = [
   "https://cinevault93.netlify.app",
   "https://chels93.github.io/CineVault-Angular-client",
+  "https://chels93.github.io",
   "http://localhost:3000", // This allows your local development environment to make requests
   "http://localhost:4200",
 ];
