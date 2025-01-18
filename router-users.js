@@ -69,7 +69,7 @@ module.exports = (app) => {
     async (req, res) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
-        return res.status(422).json({ errors: errors.array() }); // Return validation errors
+        return res.status(422).json({ errors: errors.array() });
       }
 
       const { username, password, email, birthdate } = req.body;
@@ -79,13 +79,11 @@ module.exports = (app) => {
       }
 
       try {
-        // Check if the username already exists
         const existingUser = await Users.findOne({ username });
         if (existingUser) {
           return res.status(400).send(`${username} already exists.`);
         }
 
-        // Hash the password and create the new user
         const hashedPassword = Users.hashPassword(password);
         const newUser = await Users.create({
           username,
@@ -94,17 +92,15 @@ module.exports = (app) => {
           birthdate,
         });
 
-        // Generate JWT token
         const token = jwt.sign(
           { username: newUser.username, id: newUser._id },
-          "your_secret_key", // Replace with a secure secret key or use environment variables
+          "your_secret_key",
           { expiresIn: "1h" }
         );
 
-        // Return the new user and token
         return res.status(201).json({
           user: newUser,
-          token: token, // Return token alongside the user data
+          token: token,
         });
       } catch (error) {
         console.error("Error creating user:", error);
@@ -122,32 +118,25 @@ module.exports = (app) => {
    */
   app.post("/login", async (req, res) => {
     const { username, password } = req.body;
-
-    // Validate input
     if (!username || !password) {
       return res
         .status(400)
         .json({ error: "Username and password are required" });
     }
-
     try {
-      // Find the user by username
       const user = await Users.findOne({ username });
       if (!user) {
         return res.status(401).json({ error: "Invalid username or password" });
       }
-      // Check if the password is correct
-      const isMatch = await user.comparePassword(password); // Assuming a method like comparePassword exists
+      const isMatch = await user.comparePassword(password);
       if (!isMatch) {
         return res.status(401).json({ error: "Invalid username or password" });
       }
-      // Generate a JWT token
       const token = jwt.sign(
         { username: user.username, id: user._id },
         "your_secret_key",
         { expiresIn: "1h" }
       );
-      // Send the token to the client
       res.status(200).json({ token });
     } catch (error) {
       console.error(error);
@@ -243,7 +232,7 @@ module.exports = (app) => {
     async (req, res) => {
       try {
         const user = await Users.findOne({ username: req.params.username })
-          .populate("favoriteMovies") // Populate to include movie details
+          .populate("favoriteMovies")
           .exec();
 
         if (!user) {
